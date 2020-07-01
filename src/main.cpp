@@ -11,8 +11,8 @@ int threshhold = 800;
 int PiezoIN = 0;
 int PotyIN = 0;
 int ButtonCheck = 0;
-int timerms=0;
-int timers=0;
+int timer=0;
+
 
 void takePhoto(void);
 
@@ -22,15 +22,7 @@ void setup() {
   pinMode(LED, OUTPUT); 
   pinMode(Button, INPUT); 
   digitalWrite(LED, LOW);
-  //Serial.begin(9600);
-
-  TCCR0A=(1<<WGM01);    //Set the CTC mode   
-  OCR0A=0xF9; //Value for ORC0A for 1ms 
-  TIMSK0|=(1<<OCIE0A);   //Set the interrupt request
-  sei(); //Enable interrupt
-  TCCR0B|=(1<<CS01);    //Set the prescale 1/64 clock
-  TCCR0B|=(1<<CS00);
-
+  // Serial.begin(9600);
 }
 
 void loop() {
@@ -59,25 +51,24 @@ void loop() {
     takePhoto();
     delay(1000);
   }
-  if(timerms>=1000){ //counting ms and adding to seconds counter
-    timerms=0;
-    timers++;
-  }
-  if(timers>=600){ //counting seconds up to 10 min
+  
+  if(timer>=6000){ //counting seconds up to 10 min
     takePhoto();
-    timers=0;
+    timer=0;
   }
 
+  delay(100);
+  timer++;
+  //Serial.println(timer);
+  
 }
 
-ISR(TIMER0_COMPA_vect){    //This is the interrupt request
-  timerms++;
-}
+
 
 void takePhoto(void) { //function to trigger a photo via IR LED on a Nikon camera
   int i;
-  //Serial.println("foto");
-  timers=0;
+  // Serial.println("foto");
+  timer=0;
 
   for (i = 0; i < 76; i++) {
     digitalWrite(IRLED, HIGH);
